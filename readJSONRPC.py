@@ -1,18 +1,14 @@
 import json
 import requests
 
+myDict = requests.get('http://localhost:8332/rest/block/0000000000000832e0f70b86d818755ab0aef51541e1f2bbe5146784daaa517c.json').json()
+jStr = json.dumps(myDict)
+block = json.loads(jStr)
 
-my_dict = requests.get('http://localhost:8332/rest/block/000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506.json').json()
-jstr = json.dumps(my_dict)
-data = json.loads(jstr)
-index=0
-for key in data['tx']:
-	for x in key['vin']:
-		if 'txid' in x:
-			print(x['txid'])
-			print(x['vout'])
+for transaction in block['tx']:
+	for inputTransaction in transaction['vin']:
+		if 'txid' in inputTransaction:
+			print(str(inputTransaction['txid']) + " " + str(inputTransaction['vout']))
 		else:
-			print("coinbase")
-		print("\n")
-	print ("\n\n")
-	index=index+1
+			print("Coinbase")
+	print ("\nnext block")

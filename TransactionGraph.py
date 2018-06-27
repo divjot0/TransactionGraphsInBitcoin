@@ -10,7 +10,8 @@ def getAddress(rawTransaction, outputIndex):
 		return None
 
 def getBlockSets(blockHash):
-	myDict = requests.get('http://localhost:8332/rest/block/0000000000000832e0f70b86d818755ab0aef51541e1f2bbe5146784daaa517c.json').json()
+	s='http://localhost:8332/rest/block/'+blockHash+'.json'
+	myDict = requests.get(s).json()
 	jStr = json.dumps(myDict)
 	block = json.loads(jStr)
 

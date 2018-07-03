@@ -47,3 +47,6 @@ print("Got all block hashes. Now starting to get address")
 
 for blkHash in block_hashes:
 	listOfAddress.append(getBlockAddresses(blkhash))
+	
+for addr in listOfAddresses:
+	print(addr)

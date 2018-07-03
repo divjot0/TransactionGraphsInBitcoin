@@ -17,7 +17,6 @@ def getBlockSets(blockHash):
 
 	listOfSetsInBlock = []
 
-	i=1
 	for transaction in block['tx']:
 		A = set([])
 		for inputTransaction in transaction['vin']:
@@ -29,11 +28,51 @@ def getBlockSets(blockHash):
 					if r not in A:
 						A.add(r)
 		listOfSetsInBlock.append(A)
-		print(i)
-		i=i+1
-	print("Done")
+	print("Done with a block")
 	return listOfSetsInBlock
-		
+
+def addAllEntityEdges(blockHash, listOfSets):
+	""" 
+		Add info about tx as well
+	"""
+	s='http://localhost:8332/rest/block/'+blockHash+'.json'
+	myDict = requests.get(s).json()
+	jStr = json.dumps(myDict)
+	block = json.loads(jStr)
+
+	listOfEdgesInBlock=[]
+	realListIndex1=-1
+	for transaction in block['tx']:
+		A = set([])
+		for inputTransaction in transaction['vin']:
+			if 'txid' in inputTransaction:
+				result = subprocess.run(["bitcoin-cli", "getrawtransaction", str(inputTransaction['txid']), "1"], stdout=subprocess.PIPE)
+				a = result.stdout.decode()
+				r = getAddress(a, inputTransaction['vout'])
+				if r!=None:
+					if r not in A:
+						A.add(r)
+						i=0
+						for aSet in listOfSets:
+							if r in aSet:
+								realListIndex1=i
+								break
+							i=i+1
+						break
+		if realListIndex1!=-1:
+			for outputTransaction in transaction['vout']:
+				if outputTransaction['scriptPubKey']['type']=="pubkeyhash":
+					addr = outputTransaction['scriptPubKey']['addresses'][0]
+					i=0
+					for aSet in listOfSets:
+						if addr in aSet:
+							realListIndex2=i
+							listOfEdgesInBlock.append([realListIndex1,realListIndex2])
+							break
+						i=i+1
+
+	return listOfEdgesInBlock
+
 
 listOfSets = []
 
@@ -63,4 +102,9 @@ for u in listOfSets:
 print("Done with all the processing. Now starting to print the results.")
 
 for u in listOfSets:
-	print(u)
+print(u)
+
+listOfEdges = []
+
+for blkhash in block_hashes:
+	listOfEdges.append(addAllEntityEdges(blkhash, listOfSets))

@@ -32,6 +32,9 @@ def getBlockSets(blockHash):
 	return listOfSetsInBlock
 
 def addAllEntityEdges(blockHash, listOfSets):
+	""" 
+		Add info about tx as well
+	"""
 	s='http://localhost:8332/rest/block/'+blockHash+'.json'
 	myDict = requests.get(s).json()
 	jStr = json.dumps(myDict)
@@ -98,10 +101,11 @@ for u in listOfSets:
 
 print("Done with all the processing. Now starting to print the results.")
 
-for u in listOfSets:
-print(u)
-
 listOfEdges = []
 
 for blkhash in block_hashes:
 	listOfEdges.append(addAllEntityEdges(blkhash, listOfSets))
+
+
+for aSet in listOfSets:
+print(aSet)
